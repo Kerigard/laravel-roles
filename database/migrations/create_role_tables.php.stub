@@ -1,0 +1,69 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('roles', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->unsignedSmallInteger('status')->nullable();
+            $table->string('message')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('permissions', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->unsignedSmallInteger('status')->nullable();
+            $table->string('message')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('roleables', function (Blueprint $table) {
+            $table->foreignId('role_id')->constrained()->cascadeOnDelete();
+            $table->morphs('roleable');
+            $table->primary(['role_id', 'roleable_type', 'roleable_id']);
+        });
+
+        Schema::create('permissionables', function (Blueprint $table) {
+            $table->foreignId('permission_id')->constrained()->cascadeOnDelete();
+            $table->morphs('permissionable');
+            $table->primary(['permission_id', 'permissionable_type', 'permissionable_id'], 'permissionables_primary');
+        });
+
+        if (config('roles.super_admin.enabled')) {
+            DB::table('roles')->insert([
+                'name' => 'Super Admin',
+                'slug' => config('roles.super_admin.slug'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('permissionables');
+        Schema::dropIfExists('roleables');
+        Schema::dropIfExists('permissions');
+        Schema::dropIfExists('roles');
+    }
+};

@@ -1,0 +1,43 @@
+{
+    "name": "kerigard/laravel-roles",
+    "description": "Permissions and roles for Laravel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vladislav Sidelnikov",
+            "email": "kerihoros@gmail.com"
+        }
+    ],
+    "homepage": "https://github.com/kerigard/laravel-roles",
+    "keywords": ["laravel", "roles", "permissions"],
+    "require": {
+        "php": "^8.0.2",
+        "laravel/framework": "^9.20"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.3",
+        "orchestra/testbench": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kerigard\\LaravelRoles\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Kerigard\\LaravelRoles\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Kerigard\\LaravelRoles\\RolesServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
