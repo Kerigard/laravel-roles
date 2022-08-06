@@ -66,9 +66,45 @@ $role->attachPermission($permission);
 Connect a role or permission to a user:
 
 ```php
-$user->attachRole($role);
-// or
-$user->attachPermission($permission);
+$user->attachRole(1);
+$user->attachRole($adminRole);
+$user->attachRole('super-admin');
+$user->attachRole([1, $adminRole, 'manager']);
+
+$user->attachPermission(1);
+$user->attachPermission($editPostsPermission);
+$user->attachPermission('edit-articles');
+$user->attachPermission([1, $editPostsPermission, 'edit-articles']);
+```
+
+You can disable a role or permission for a user:
+
+```php
+$user->detachRole(1);
+$user->detachRole($adminRole);
+$user->detachRole('super-admin');
+$user->detachRole([1, $adminRole, 'manager']);
+$user->detachAllRoles();
+
+$user->detachPermission(1);
+$user->detachPermission($editPostsPermission);
+$user->detachPermission('edit-articles');
+$user->detachPermission([1, $editPostsPermission, 'edit-articles']);
+$user->detachAllPermissions();
+```
+
+Or just sync the specified roles or permissions. Any roles or permissions that are not listed will be disabled:
+
+```php
+$user->syncRoles(1);
+$user->syncRoles($adminRole);
+$user->syncRoles('super-admin');
+$user->syncRoles([1, $adminRole, 'manager']);
+
+$user->syncPermissions(1);
+$user->syncPermissions($editPostsPermission);
+$user->syncPermissions('edit-articles');
+$user->syncPermissions([1, $editPostsPermission, 'edit-articles']);
 ```
 
 ### Permissions check
@@ -84,6 +120,9 @@ $user->hasPermission($permission);
 $user->hasPermission(['edit-articles', 'register-articles']);
 // has any permissions
 $user->hasAnyPermission(['edit-articles', 'register-articles']);
+
+// or check that the role contains the permission
+$role->hasPermission('edit-articles');
 ```
 
 All permissions are registered with Laravel Gates, so you can use the `can` function:
@@ -121,12 +160,6 @@ $user->hasRole($role);
 $user->hasRole(['manager', 'admin']);
 // kas any roles
 $user->hasAnyRole(['manager', 'admin']);
-```
-
-You can also check if a role contains a permission:
-
-```php
-$role->hasPermission('edit-articles');
 ```
 
 If you want to check the role in the controller and raise an exception if it is missing, then you need to replace the trait import in the `app\Http\Controllers\Controller.php` file:

@@ -104,4 +104,40 @@ class PermissionTest extends TestCase
 
         $this->assertEquals(200, $this->runMiddleware(Authorize::class, 'permission-1')->getStatusCode());
     }
+
+    public function test_attach_and_detach_permissions()
+    {
+        $user = $this->createUser();
+        $permission1 = Permission::fake(['slug' => 'permission-1']);
+        Permission::fake(['slug' => 'permission-2']);
+        Permission::fake(['slug' => 'permission-3']);
+
+        $user->attachPermission($permission1);
+        $user->attachPermission(2);
+        $user->attachPermission('permission-3');
+
+        $this->assertTrue($user->hasPermission(['permission-1', 'permission-2', 'permission-3']));
+
+        $user->detachPermission($permission1);
+        $user->detachPermission(2);
+        $user->detachPermission('permission-3');
+
+        $this->assertFalse($user->hasAnyPermission(['permission-1', 'permission-2', 'permission-3']));
+
+        $user->attachPermission([$permission1, 2, 'permission-3']);
+
+        $this->assertTrue($user->hasPermission(['permission-1', 'permission-2', 'permission-3']));
+
+        $user->detachPermission([$permission1, 2, 'permission-3']);
+
+        $this->assertFalse($user->hasAnyPermission(['permission-1', 'permission-2', 'permission-3']));
+
+        $user->syncPermissions([$permission1, 2, 'permission-3']);
+
+        $this->assertTrue($user->hasPermission(['permission-1', 'permission-2', 'permission-3']));
+
+        $user->detachAllPermissions();
+
+        $this->assertFalse($user->hasAnyPermission(['permission-1', 'permission-2', 'permission-3']));
+    }
 }

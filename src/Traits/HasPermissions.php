@@ -96,26 +96,26 @@ trait HasPermissions
     }
 
     /**
-     * Attach permission to a model.
+     * Attach permissions to a model.
      *
-     * @param  int|\Kerigard\LaravelRoles\Contracts\Permission  $permission
+     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions
      * @return void
      */
-    public function attachPermission($permission): void
+    public function attachPermission($permissions): void
     {
-        $this->permissions()->attach($permission);
+        $this->permissions()->attach($this->preparePermissions($permissions));
         $this->load('permissions');
     }
 
     /**
-     * Detach permission from a model.
+     * Detach permissions from a model.
      *
-     * @param  int|\Kerigard\LaravelRoles\Contracts\Permission  $permission
+     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions
      * @return void
      */
-    public function detachPermission($permission): void
+    public function detachPermission($permissions): void
     {
-        $this->permissions()->detach($permission);
+        $this->permissions()->detach($this->preparePermissions($permissions));
         $this->load('permissions');
     }
 
@@ -133,12 +133,31 @@ trait HasPermissions
     /**
      * Sync permissions for a model.
      *
-     * @param  \Illuminate\Support\Collection|\Kerigard\LaravelRoles\Contracts\Permission|array  $permissions
+     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions
      * @return void
      */
     public function syncPermissions($permissions): void
     {
-        $this->permissions()->sync($permissions);
+        $this->permissions()->sync($this->preparePermissions($permissions));
         $this->load('permissions');
+    }
+
+    /**
+     * Prepare permissions before saving.
+     *
+     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions
+     * @return \Illuminate\Support\Collection
+     */
+    private function preparePermissions($permissions): Collection
+    {
+        $permissions = collect([$permissions])->flatten()->filter();
+        $stringPermissions = $permissions->filter(fn ($permission) => is_string($permission));
+
+        return $permissions
+            ->filter(fn ($permission) => ! is_string($permission))
+            ->when($stringPermissions->isNotEmpty(), fn (Collection $collection) => $collection->merge(
+                app(Permission::class)->whereIn('slug', $stringPermissions)->pluck(app(Permission::class)->getKeyName())
+            ))
+            ->transform(fn ($permission) => is_int($permission) ? $permission : $permission->getKey());
     }
 }

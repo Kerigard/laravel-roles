@@ -3,6 +3,7 @@
 namespace Kerigard\LaravelRoles\Traits;
 
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Collection;
 use Kerigard\LaravelRoles\Contracts\Role;
 
 trait HasRoles
@@ -18,7 +19,7 @@ trait HasRoles
     }
 
     /**
-     * Determine if the model has all the specified roles..
+     * Determine if the model has all the specified roles.
      *
      * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @return bool
@@ -64,31 +65,31 @@ trait HasRoles
     }
 
     /**
-     * Attach role to a user.
+     * Attach roles to a model.
      *
-     * @param  int|\Kerigard\LaravelRoles\Contracts\Role  $role
+     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles
      * @return void
      */
-    public function attachRole($role): void
+    public function attachRole($roles): void
     {
-        $this->roles()->attach($role);
+        $this->roles()->attach($this->prepareRoles($roles));
         $this->load('roles');
     }
 
     /**
-     * Detach role from a user.
+     * Detach roles from a model.
      *
-     * @param  int|\Kerigard\LaravelRoles\Contracts\Role  $role
+     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles
      * @return void
      */
-    public function detachRole($role): void
+    public function detachRole($roles): void
     {
-        $this->roles()->detach($role);
+        $this->roles()->detach($this->prepareRoles($roles));
         $this->load('roles');
     }
 
     /**
-     * Detach all roles from a user.
+     * Detach all roles from a model.
      *
      * @return void
      */
@@ -99,14 +100,33 @@ trait HasRoles
     }
 
     /**
-     * Sync roles for a user.
+     * Sync roles for a model.
      *
-     * @param  \Illuminate\Support\Collection|\Kerigard\LaravelRoles\Contracts\Role|array  $roles
+     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles
      * @return void
      */
     public function syncRoles($roles): void
     {
-        $this->roles()->sync($roles);
+        $this->roles()->sync($this->prepareRoles($roles));
         $this->load('roles');
+    }
+
+    /**
+     * Prepare roles before saving.
+     *
+     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles
+     * @return \Illuminate\Support\Collection
+     */
+    private function prepareRoles($roles): Collection
+    {
+        $roles = collect([$roles])->flatten()->filter();
+        $stringRoles = $roles->filter(fn ($role) => is_string($role));
+
+        return $roles
+            ->filter(fn ($role) => ! is_string($role))
+            ->when($stringRoles->isNotEmpty(), fn (Collection $collection) => $collection->merge(
+                app(Role::class)->whereIn('slug', $stringRoles)->pluck(app(Role::class)->getKeyName())
+            ))
+            ->transform(fn ($role) => is_int($role) ? $role : $role->getKey());
     }
 }

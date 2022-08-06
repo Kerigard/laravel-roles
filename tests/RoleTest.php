@@ -91,4 +91,40 @@ class RoleTest extends TestCase
 
         $this->assertEquals(200, $this->runMiddleware(AuthorizeRole::class, 'role-1')->getStatusCode());
     }
+
+    public function test_attach_and_detach_roles()
+    {
+        $user = $this->createUser();
+        $role1 = Role::fake(['slug' => 'role-1']);
+        Role::fake(['slug' => 'role-2']);
+        Role::fake(['slug' => 'role-3']);
+
+        $user->attachRole($role1);
+        $user->attachRole(3);
+        $user->attachRole('role-3');
+
+        $this->assertTrue($user->hasRole(['role-1', 'role-2', 'role-3']));
+
+        $user->detachRole($role1);
+        $user->detachRole(3);
+        $user->detachRole('role-3');
+
+        $this->assertFalse($user->hasAnyRole(['role-1', 'role-2', 'role-3']));
+
+        $user->attachRole([$role1, 3, 'role-3']);
+
+        $this->assertTrue($user->hasRole(['role-1', 'role-2', 'role-3']));
+
+        $user->detachRole([$role1, 3, 'role-3']);
+
+        $this->assertFalse($user->hasAnyRole(['role-1', 'role-2', 'role-3']));
+
+        $user->syncRoles([$role1, 3, 'role-3']);
+
+        $this->assertTrue($user->hasRole(['role-1', 'role-2', 'role-3']));
+
+        $user->detachAllRoles();
+
+        $this->assertFalse($user->hasAnyRole(['role-1', 'role-2', 'role-3']));
+    }
 }
