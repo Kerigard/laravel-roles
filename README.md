@@ -253,7 +253,7 @@ Permission::create([
 
 In the configuration, you can enable the super admin role. For users with this role, all permissions and role checks will be `true`.
 
-## Change log
+## Changelog
 
 Please see the [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
