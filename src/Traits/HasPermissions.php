@@ -96,6 +96,28 @@ trait HasPermissions
     }
 
     /**
+     * Determine if the model may not comply with all specified permissions.
+     *
+     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
+     * @return bool
+     */
+    public function doesNotHasPermission($permissions): bool
+    {
+        return ! $this->hasPermission($permissions);
+    }
+
+    /**
+     * Determine if the model can fail any of the specified permissions.
+     *
+     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
+     * @return bool
+     */
+    public function doesNotHasAnyPermission($permissions): bool
+    {
+        return ! $this->hasAnyPermission($permissions);
+    }
+
+    /**
      * Attach permissions to a model.
      *
      * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions

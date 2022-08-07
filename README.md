@@ -121,6 +121,9 @@ $user->hasPermission(['edit-articles', 'register-articles']);
 // has any permissions
 $user->hasAnyPermission(['edit-articles', 'register-articles']);
 
+$user->doesNotHasPermission($permission);
+$user->doesNotHasAnyPermission(['edit-articles', 'register-articles']);
+
 // or check that the role contains the permission
 $role->hasPermission('edit-articles');
 ```
@@ -160,6 +163,9 @@ $user->hasRole($role);
 $user->hasRole(['manager', 'admin']);
 // kas any roles
 $user->hasAnyRole(['manager', 'admin']);
+
+$user->doesNotHasRole($role);
+$user->doesNotHasAnyRole(['manager', 'admin']);
 ```
 
 If you want to check the role in the controller and raise an exception if it is missing, then you need to replace the trait import in the `app\Http\Controllers\Controller.php` file:

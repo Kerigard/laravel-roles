@@ -65,6 +65,28 @@ trait HasRoles
     }
 
     /**
+     * Determine if the model does not has all the specified roles.
+     *
+     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
+     * @return bool
+     */
+    public function doesNotHasRole($roles): bool
+    {
+        return ! $this->hasRole($roles);
+    }
+
+    /**
+     * Determine if the model does not has any of the specified roles.
+     *
+     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
+     * @return bool
+     */
+    public function doesNotHasAnyRole($roles): bool
+    {
+        return ! $this->hasAnyRole($roles);
+    }
+
+    /**
      * Attach roles to a model.
      *
      * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles

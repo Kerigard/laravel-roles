@@ -140,4 +140,19 @@ class PermissionTest extends TestCase
 
         $this->assertFalse($user->hasAnyPermission(['permission-1', 'permission-2', 'permission-3']));
     }
+
+    public function test_user_does_not_has_permission()
+    {
+        $user = $this->createUser();
+        $permission1 = Permission::fake(['slug' => 'permission-1']);
+        Permission::fake(['slug' => 'permission-2']);
+
+        $this->assertTrue($user->doesNotHasAnyPermission(['permission-1', 'permission-2']));
+
+        $user->attachPermission($permission1);
+
+        $this->assertFalse($user->doesNotHasAnyPermission(['permission-1', 'permission-2']));
+        $this->assertFalse($user->doesNotHasPermission('permission-1'));
+        $this->assertTrue($user->doesNotHasPermission('permission-2'));
+    }
 }

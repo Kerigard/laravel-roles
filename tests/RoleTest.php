@@ -127,4 +127,19 @@ class RoleTest extends TestCase
 
         $this->assertFalse($user->hasAnyRole(['role-1', 'role-2', 'role-3']));
     }
+
+    public function test_user_does_not_has_role()
+    {
+        $user = $this->createUser();
+        $role1 = Role::fake(['slug' => 'role-1']);
+        Role::fake(['slug' => 'role-2']);
+
+        $this->assertTrue($user->doesNotHasAnyRole(['role-1', 'role-2']));
+
+        $user->attachRole($role1);
+
+        $this->assertFalse($user->doesNotHasAnyRole(['role-1', 'role-2']));
+        $this->assertFalse($user->doesNotHasRole('role-1'));
+        $this->assertTrue($user->doesNotHasRole('role-2'));
+    }
 }
