@@ -69,6 +69,12 @@ class RoleTest extends TestCase
         $user->syncRoles([1, 2]);
 
         $this->assertTrue($user->hasRole(collect(['role-1', 'role-2'])));
+
+        $user->detachAllRoles();
+        $user->attachRole($role1);
+        $user->syncRolesWithoutDetaching($role2);
+
+        $this->assertTrue($user->hasRole(['role-1', 'role-2']));
     }
 
     public function test_middleware_has_role_and_status_with_message()

@@ -125,12 +125,24 @@ trait HasRoles
      * Sync roles for a model.
      *
      * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles
+     * @param  bool  $detaching
      * @return void
      */
-    public function syncRoles($roles): void
+    public function syncRoles($roles, bool $detaching = true): void
     {
-        $this->roles()->sync($this->prepareRoles($roles));
+        $this->roles()->sync($this->prepareRoles($roles), $detaching);
         $this->load('roles');
+    }
+
+    /**
+     * Sync roles for a model without detaching.
+     *
+     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles
+     * @return void
+     */
+    public function syncRolesWithoutDetaching($roles): void
+    {
+        $this->syncRoles($roles, false);
     }
 
     /**

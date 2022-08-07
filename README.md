@@ -107,6 +107,13 @@ $user->syncPermissions('edit-articles');
 $user->syncPermissions([1, $editPostsPermission, 'edit-articles']);
 ```
 
+Use this method if you don't want old roles or permissions to be disabled when syncing:
+
+```php
+$user->syncRolesWithoutDetaching($role);
+$user->syncPermissionsWithoutDetaching($permission);
+```
+
 ### Permissions check
 
 To check for permission, run:

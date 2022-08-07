@@ -156,12 +156,24 @@ trait HasPermissions
      * Sync permissions for a model.
      *
      * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions
+     * @param  bool  $detaching
      * @return void
      */
-    public function syncPermissions($permissions): void
+    public function syncPermissions($permissions, bool $detaching = true): void
     {
-        $this->permissions()->sync($this->preparePermissions($permissions));
+        $this->permissions()->sync($this->preparePermissions($permissions), $detaching);
         $this->load('permissions');
+    }
+
+    /**
+     * Sync permissions for a model without detaching.
+     *
+     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions
+     * @return void
+     */
+    public function syncPermissionsWithoutDetaching($permissions): void
+    {
+        $this->syncPermissions($permissions, false);
     }
 
     /**

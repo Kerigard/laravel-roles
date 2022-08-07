@@ -64,6 +64,12 @@ class PermissionTest extends TestCase
         $user->syncPermissions([1, 2]);
 
         $this->assertTrue($user->hasPermission(collect(['permission-1', 'permission-2'])));
+
+        $user->detachAllPermissions();
+        $user->attachPermission($permission1);
+        $user->syncPermissionsWithoutDetaching($permission2);
+
+        $this->assertTrue($user->hasPermission(['permission-1', 'permission-2']));
     }
 
     public function test_user_has_permission_via_role()
