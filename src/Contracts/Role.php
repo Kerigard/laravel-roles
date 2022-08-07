@@ -2,6 +2,8 @@
 
 namespace Kerigard\LaravelRoles\Contracts;
 
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+
 interface Role
 {
     /**
@@ -9,7 +11,7 @@ interface Role
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
      */
-    public function permissions();
+    public function permissions(): MorphToMany;
 
     /**
      * Get the primary key for the model.
