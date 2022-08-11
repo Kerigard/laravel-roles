@@ -5,6 +5,7 @@ namespace Kerigard\LaravelRoles\Traits;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
 use Kerigard\LaravelRoles\Contracts\Permission;
+use UnitEnum;
 
 trait HasPermissions
 {
@@ -41,13 +42,17 @@ trait HasPermissions
     /**
      * Determine if the model can fulfill all specified permissions.
      *
-     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @return bool
      */
     public function checkPermission($permissions): bool
     {
         if (is_null($permissions)) {
             return true;
+        }
+
+        if ($permissions instanceof UnitEnum) {
+            $permissions = $permissions->value;
         }
 
         if (is_string($permissions)) {
@@ -72,7 +77,7 @@ trait HasPermissions
     /**
      * Determine if the model can fulfill all specified permissions.
      *
-     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @return bool
      */
     public function hasPermission($permissions): bool
@@ -87,7 +92,7 @@ trait HasPermissions
     /**
      * Determine if the model can do any of the specified permissions.
      *
-     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @return bool
      */
     public function hasAnyPermission($permissions): bool
@@ -98,7 +103,7 @@ trait HasPermissions
     /**
      * Determine if the model may not comply with all specified permissions.
      *
-     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @return bool
      */
     public function doesNotHasPermission($permissions): bool
@@ -109,7 +114,7 @@ trait HasPermissions
     /**
      * Determine if the model can fail any of the specified permissions.
      *
-     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @return bool
      */
     public function doesNotHasAnyPermission($permissions): bool
@@ -120,7 +125,7 @@ trait HasPermissions
     /**
      * Attach permissions to a model.
      *
-     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @return void
      */
     public function attachPermission($permissions): void
@@ -132,7 +137,7 @@ trait HasPermissions
     /**
      * Detach permissions from a model.
      *
-     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @return void
      */
     public function detachPermission($permissions): void
@@ -155,7 +160,7 @@ trait HasPermissions
     /**
      * Sync permissions for a model.
      *
-     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @param  bool  $detaching
      * @return void
      */
@@ -168,7 +173,7 @@ trait HasPermissions
     /**
      * Sync permissions for a model without detaching.
      *
-     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @return void
      */
     public function syncPermissionsWithoutDetaching($permissions): void
@@ -179,12 +184,15 @@ trait HasPermissions
     /**
      * Prepare permissions before saving.
      *
-     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Permission  $permissions
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @return \Illuminate\Support\Collection
      */
     private function preparePermissions($permissions): Collection
     {
-        $permissions = collect([$permissions])->flatten()->filter();
+        $permissions = collect([$permissions])
+            ->flatten()
+            ->filter()
+            ->transform(fn ($permission) => $permission instanceof UnitEnum ? $permission->value : $permission);
         $stringPermissions = $permissions->filter(fn ($permission) => is_string($permission));
 
         return $permissions

@@ -180,7 +180,7 @@ If you want to check the role in the controller and raise an exception if it is 
 ```php
 // from
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-//to
+// to
 use Kerigard\LaravelRoles\Traits\AuthorizesRequests;
 ```
 

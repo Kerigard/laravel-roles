@@ -5,6 +5,7 @@ namespace Kerigard\LaravelRoles\Traits;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
 use Kerigard\LaravelRoles\Contracts\Role;
+use UnitEnum;
 
 trait HasRoles
 {
@@ -21,7 +22,7 @@ trait HasRoles
     /**
      * Determine if the model has all the specified roles.
      *
-     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @return bool
      */
     public function hasRole($roles): bool
@@ -32,6 +33,10 @@ trait HasRoles
 
         if (is_null($roles)) {
             return true;
+        }
+
+        if ($roles instanceof UnitEnum) {
+            $roles = $roles->value;
         }
 
         if (is_string($roles)) {
@@ -56,7 +61,7 @@ trait HasRoles
     /**
      * Determine if the model has any of the specified roles.
      *
-     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @return bool
      */
     public function hasAnyRole($roles): bool
@@ -67,7 +72,7 @@ trait HasRoles
     /**
      * Determine if the model does not has all the specified roles.
      *
-     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @return bool
      */
     public function doesNotHasRole($roles): bool
@@ -78,7 +83,7 @@ trait HasRoles
     /**
      * Determine if the model does not has any of the specified roles.
      *
-     * @param  string|int|iterable|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @return bool
      */
     public function doesNotHasAnyRole($roles): bool
@@ -89,7 +94,7 @@ trait HasRoles
     /**
      * Attach roles to a model.
      *
-     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @return void
      */
     public function attachRole($roles): void
@@ -101,7 +106,7 @@ trait HasRoles
     /**
      * Detach roles from a model.
      *
-     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @return void
      */
     public function detachRole($roles): void
@@ -124,7 +129,7 @@ trait HasRoles
     /**
      * Sync roles for a model.
      *
-     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @param  bool  $detaching
      * @return void
      */
@@ -137,7 +142,7 @@ trait HasRoles
     /**
      * Sync roles for a model without detaching.
      *
-     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @return void
      */
     public function syncRolesWithoutDetaching($roles): void
@@ -148,12 +153,15 @@ trait HasRoles
     /**
      * Prepare roles before saving.
      *
-     * @param  \Illuminate\Support\Collection|array|int|string|\Kerigard\LaravelRoles\Contracts\Role  $roles
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @return \Illuminate\Support\Collection
      */
     private function prepareRoles($roles): Collection
     {
-        $roles = collect([$roles])->flatten()->filter();
+        $roles = collect([$roles])
+            ->flatten()
+            ->filter()
+            ->transform(fn ($role) => $role instanceof UnitEnum ? $role->value : $role);
         $stringRoles = $roles->filter(fn ($role) => is_string($role));
 
         return $roles
