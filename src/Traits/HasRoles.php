@@ -95,35 +95,38 @@ trait HasRoles
      * Attach roles to a model.
      *
      * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
-     * @return void
+     * @return $this
      */
-    public function attachRole($roles): void
+    public function attachRole($roles)
     {
-        $this->roles()->attach($this->prepareRoles($roles));
-        $this->load('roles');
+        $this->saveRoles(fn (?Collection $roles) => $this->roles()->attach($roles), $roles);
+
+        return $this;
     }
 
     /**
      * Detach roles from a model.
      *
      * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
-     * @return void
+     * @return $this
      */
-    public function detachRole($roles): void
+    public function detachRole($roles)
     {
-        $this->roles()->detach($this->prepareRoles($roles));
-        $this->load('roles');
+        $this->saveRoles(fn (?Collection $roles) => $this->roles()->detach($roles), $roles ?? []);
+
+        return $this;
     }
 
     /**
      * Detach all roles from a model.
      *
-     * @return void
+     * @return $this
      */
-    public function detachAllRoles(): void
+    public function detachAllRoles()
     {
-        $this->roles()->detach();
-        $this->load('roles');
+        $this->saveRoles(fn () => $this->roles()->detach());
+
+        return $this;
     }
 
     /**
@@ -131,33 +134,64 @@ trait HasRoles
      *
      * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @param  bool  $detaching
-     * @return void
+     * @return $this
      */
-    public function syncRoles($roles, bool $detaching = true): void
+    public function syncRoles($roles, bool $detaching = true)
     {
-        $this->roles()->sync($this->prepareRoles($roles), $detaching);
-        $this->load('roles');
+        $this->saveRoles(fn (?Collection $roles) => $this->roles()->sync($roles, $detaching), $roles);
+
+        return $this;
     }
 
     /**
      * Sync roles for a model without detaching.
      *
      * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
+     * @return $this
+     */
+    public function syncRolesWithoutDetaching($roles)
+    {
+        return $this->syncRoles($roles, false);
+    }
+
+    /**
+     * Save roles for a model.
+     *
+     * @param  callable  $callback
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
      * @return void
      */
-    public function syncRolesWithoutDetaching($roles): void
+    protected function saveRoles(callable $callback, $roles = null): void
     {
-        $this->syncRoles($roles, false);
+        $model = $this->getModel();
+
+        if ($model->exists) {
+            $callback($this->prepareRoles($roles));
+            $this->load('roles');
+        } else {
+            $model->saved(function ($object) use ($callback, $roles, $model) {
+                if ($object->getKey() != $model->getKey()) {
+                    return;
+                }
+
+                $callback($this->prepareRoles($roles));
+                $this->load('roles');
+            });
+        }
     }
 
     /**
      * Prepare roles before saving.
      *
      * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Role|null  $roles
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection|null
      */
-    private function prepareRoles($roles): Collection
+    protected function prepareRoles($roles): ?Collection
     {
+        if (is_null($roles)) {
+            return null;
+        }
+
         $roles = collect([$roles])
             ->flatten()
             ->filter()

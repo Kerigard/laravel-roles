@@ -6,6 +6,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\Middleware\Authorize;
 use Kerigard\LaravelRoles\Tests\Models\Permission;
 use Kerigard\LaravelRoles\Tests\Models\Role;
+use Kerigard\LaravelRoles\Tests\Models\User;
 
 class PermissionTest extends TestCase
 {
@@ -160,5 +161,19 @@ class PermissionTest extends TestCase
         $this->assertFalse($user->doesNotHasAnyPermission(['permission-1', 'permission-2']));
         $this->assertFalse($user->doesNotHasPermission('permission-1'));
         $this->assertTrue($user->doesNotHasPermission('permission-2'));
+    }
+
+    public function test_save_permissions_for_new_user()
+    {
+        $user = new User(['email' => fake()->unique()->safeEmail()]);
+        $permission1 = Permission::fake(['slug' => 'permission-1']);
+
+        $user->attachPermission($permission1);
+
+        $this->assertTrue($user->doesNotHasPermission($permission1));
+
+        $user->save();
+
+        $this->assertTrue($user->hasPermission($permission1));
     }
 }

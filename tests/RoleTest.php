@@ -5,6 +5,7 @@ namespace Kerigard\LaravelRoles\Tests;
 use Illuminate\Auth\Access\AuthorizationException;
 use Kerigard\LaravelRoles\Middlewares\AuthorizeRole;
 use Kerigard\LaravelRoles\Tests\Models\Role;
+use Kerigard\LaravelRoles\Tests\Models\User;
 
 class RoleTest extends TestCase
 {
@@ -147,5 +148,19 @@ class RoleTest extends TestCase
         $this->assertFalse($user->doesNotHasAnyRole(['role-1', 'role-2']));
         $this->assertFalse($user->doesNotHasRole('role-1'));
         $this->assertTrue($user->doesNotHasRole('role-2'));
+    }
+
+    public function test_save_roles_for_new_user()
+    {
+        $user = new User(['email' => fake()->unique()->safeEmail()]);
+        $role1 = Role::fake(['slug' => 'role-1']);
+
+        $user->attachRole($role1);
+
+        $this->assertTrue($user->doesNotHasRole($role1));
+
+        $user->save();
+
+        $this->assertTrue($user->hasRole($role1));
     }
 }

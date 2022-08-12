@@ -126,35 +126,44 @@ trait HasPermissions
      * Attach permissions to a model.
      *
      * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
-     * @return void
+     * @return $this
      */
-    public function attachPermission($permissions): void
+    public function attachPermission($permissions)
     {
-        $this->permissions()->attach($this->preparePermissions($permissions));
-        $this->load('permissions');
+        $this->savePermissions(
+            fn (?Collection $permissions) => $this->permissions()->attach($permissions),
+            $permissions
+        );
+
+        return $this;
     }
 
     /**
      * Detach permissions from a model.
      *
      * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
-     * @return void
+     * @return $this
      */
-    public function detachPermission($permissions): void
+    public function detachPermission($permissions)
     {
-        $this->permissions()->detach($this->preparePermissions($permissions));
-        $this->load('permissions');
+        $this->savePermissions(
+            fn (?Collection $permissions) => $this->permissions()->detach($permissions),
+            $permissions ?? []
+        );
+
+        return $this;
     }
 
     /**
      * Detach all permissions from a model.
      *
-     * @return void
+     * @return $this
      */
-    public function detachAllPermissions(): void
+    public function detachAllPermissions()
     {
-        $this->permissions()->detach();
-        $this->load('permissions');
+        $this->savePermissions(fn () => $this->permissions()->detach());
+
+        return $this;
     }
 
     /**
@@ -162,33 +171,67 @@ trait HasPermissions
      *
      * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @param  bool  $detaching
-     * @return void
+     * @return $this
      */
-    public function syncPermissions($permissions, bool $detaching = true): void
+    public function syncPermissions($permissions, bool $detaching = true)
     {
-        $this->permissions()->sync($this->preparePermissions($permissions), $detaching);
-        $this->load('permissions');
+        $this->savePermissions(
+            fn (?Collection $permissions) => $this->permissions()->sync($permissions, $detaching),
+            $permissions
+        );
+
+        return $this;
     }
 
     /**
      * Sync permissions for a model without detaching.
      *
      * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
+     * @return $this
+     */
+    public function syncPermissionsWithoutDetaching($permissions)
+    {
+        return $this->syncPermissions($permissions, false);
+    }
+
+    /**
+     * Save permissions for a model.
+     *
+     * @param  callable  $callback
+     * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
      * @return void
      */
-    public function syncPermissionsWithoutDetaching($permissions): void
+    protected function savePermissions(callable $callback, $permissions = null): void
     {
-        $this->syncPermissions($permissions, false);
+        $model = $this->getModel();
+
+        if ($model->exists) {
+            $callback($this->preparePermissions($permissions));
+            $this->load('permissions');
+        } else {
+            $model->saved(function ($object) use ($callback, $permissions, $model) {
+                if ($object->getKey() != $model->getKey()) {
+                    return;
+                }
+
+                $callback($this->preparePermissions($permissions));
+                $this->load('permissions');
+            });
+        }
     }
 
     /**
      * Prepare permissions before saving.
      *
      * @param  string|int|iterable|\UnitEnum|\Kerigard\LaravelRoles\Contracts\Permission|null  $permissions
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection|null
      */
-    private function preparePermissions($permissions): Collection
+    protected function preparePermissions($permissions): ?Collection
     {
+        if (is_null($permissions)) {
+            return null;
+        }
+
         $permissions = collect([$permissions])
             ->flatten()
             ->filter()
