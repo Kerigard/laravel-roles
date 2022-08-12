@@ -1,6 +1,13 @@
 # Release Notes
 
-## [Unreleased](https://github.com/Kerigard/laravel-roles/compare/v1.1.0...master)
+## [Unreleased](https://github.com/Kerigard/laravel-roles/compare/v1.1.1...master)
+
+## [v1.1.1](https://github.com/Kerigard/laravel-roles/compare/v1.1.0...v1.1.1) - 2022-08-12
+
+### Added
+
+- Added support for enum types to bind and check roles and permissions ([4058842](https://github.com/Kerigard/laravel-roles/commit/4058842c4345e01a913a1065eba30959518da5cc))
+- Added roles and permissions binding after saving user ([1111ca5](https://github.com/Kerigard/laravel-roles/commit/1111ca503775b13b03c9eff7b686ebdea980d0ee))
 
 ## [v1.1.0](https://github.com/Kerigard/laravel-roles/compare/v1.0.0...v1.1.0) - 2022-08-07
 
