@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/Kerigard/laravel-roles/compare/v1.1.1...master)
+## [Unreleased](https://github.com/Kerigard/laravel-roles/compare/v1.1.2...master)
+
+## [v1.1.2](https://github.com/Kerigard/laravel-roles/compare/v1.1.1...v1.1.2) - 2022-09-16
+
+### Added
+
+- Added support for enum and models to gate ([86b1b01](https://github.com/Kerigard/laravel-roles/commit/86b1b012745ad90e3632bb3ad792c745ba03da32))
 
 ## [v1.1.1](https://github.com/Kerigard/laravel-roles/compare/v1.1.0...v1.1.1) - 2022-08-12
 
