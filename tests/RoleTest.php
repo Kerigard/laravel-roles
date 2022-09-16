@@ -3,6 +3,8 @@
 namespace Kerigard\LaravelRoles\Tests;
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\Access\Response;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Kerigard\LaravelRoles\Middlewares\AuthorizeRole;
 use Kerigard\LaravelRoles\Tests\Models\Role;
 use Kerigard\LaravelRoles\Tests\Models\User;
@@ -76,6 +78,13 @@ class RoleTest extends TestCase
         $user->syncRolesWithoutDetaching($role2);
 
         $this->assertTrue($user->hasRole(['role-1', 'role-2']));
+
+        $user->detachRole($role1);
+
+        $this->assertInstanceOf(Response::class, app(Gate::class)->authorizeRole($role2));
+
+        $this->expectException(AuthorizationException::class);
+        app(Gate::class)->authorizeRole($role1);
     }
 
     public function test_middleware_has_role_and_status_with_message()

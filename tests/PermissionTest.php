@@ -3,7 +3,9 @@
 namespace Kerigard\LaravelRoles\Tests;
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Auth\Middleware\Authorize;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Kerigard\LaravelRoles\Tests\Models\Permission;
 use Kerigard\LaravelRoles\Tests\Models\Role;
 use Kerigard\LaravelRoles\Tests\Models\User;
@@ -71,6 +73,13 @@ class PermissionTest extends TestCase
         $user->syncPermissionsWithoutDetaching($permission2);
 
         $this->assertTrue($user->hasPermission(['permission-1', 'permission-2']));
+
+        $user->detachPermission($permission1);
+
+        $this->assertInstanceOf(Response::class, app(Gate::class)->authorize($permission2));
+
+        $this->expectException(AuthorizationException::class);
+        app(Gate::class)->authorize($permission1);
     }
 
     public function test_user_has_permission_via_role()
