@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/Kerigard/laravel-roles/compare/v1.1.2...master)
+## [Unreleased](https://github.com/Kerigard/laravel-roles/compare/v1.1.3...master)
+
+## [v1.1.3](https://github.com/Kerigard/laravel-roles/compare/v1.1.2...v1.1.3) - 2023-02-25
+
+### Changed
+
+- Added Laravel 10.x support ([adf8f80](https://github.com/Kerigard/laravel-roles/commit/adf8f80b79096f517d19256ad565c300dfbbd201))
 
 ## [v1.1.2](https://github.com/Kerigard/laravel-roles/compare/v1.1.1...v1.1.2) - 2022-09-16
 
